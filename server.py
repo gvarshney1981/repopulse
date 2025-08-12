@@ -43,7 +43,7 @@ except ImportError:
 
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
 def run_git_command(repo_path, command):
@@ -701,6 +701,11 @@ def download_html_report():
         return jsonify({'error': f'Failed to generate HTML report: {str(e)}'}), 500
 
 
+
+@app.route('/')
+def index():
+    """Serve the main application page"""
+    return send_from_directory('.', 'index.html')
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
