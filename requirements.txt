@@ -1,0 +1,7 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+Jinja2==3.1.2
+gitpython==3.1.40
+python-dateutil==2.8.2
+Werkzeug==2.3.7
+gunicorn==21.2.0 
