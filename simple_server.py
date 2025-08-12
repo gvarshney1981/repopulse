@@ -36,4 +36,13 @@ if __name__ == '__main__':
     print(f"Starting simple RepoPulse server on port {port}")
     print(f"Current directory: {os.getcwd()}")
     print(f"Files in directory: {os.listdir('.')}")
+    
+    # Check for specific files
+    important_files = ['index.html', 'script.js', 'config.py', 'server.py']
+    for file in important_files:
+        if os.path.exists(file):
+            print(f"✅ {file} exists")
+        else:
+            print(f"❌ {file} missing")
+    
     app.run(host='0.0.0.0', port=port, debug=False) 
