@@ -56,7 +56,8 @@ tmp/
 
 # Generated reports
 reports/
-*.html
+# Don't ignore index.html - it's needed for the web interface
+# *.html
 
 # Environment variables
 .env

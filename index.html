@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepoPulse - Repository Analysis & AI Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .repo-card {
+            transition: transform 0.2s;
+        }
+        .repo-card:hover {
+            transform: translateY(-2px);
+        }
+        .developer-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .loading {
+            display: none;
+        }
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+        .stats-card {
+            border-left: 4px solid #007bff;
+        }
+        .error-message {
+            display: none;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row bg-primary text-white py-4">
+                                <div class="col-10">
+                        <h1 class="text-center mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>
+                            RepoPulse
+                        </h1>
+                        <p class="text-center mb-0 mt-2">Professional Repository Analysis & AI-Generated Code Detection</p>
+                    </div>
+                    <div class="col-2 text-end">
+                        <button class="btn btn-outline-light btn-sm" id="downloadBtn" onclick="downloadReport()" style="display: none;">
+                            <i class="fas fa-download me-1"></i>
+                            Download Report
+                        </button>
+                    </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="row mt-4">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-folder-open me-2"></i>
+                            Repository Configuration
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label for="repoPaths" class="form-label">Repository Paths (one per line):</label>
+                            <textarea class="form-control" id="repoPaths" rows="4" placeholder="Enter full paths to Git repositories&#10;Example:&#10;/path/to/repo1&#10;/path/to/repo2"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label">Start Date:</label>
+                                <input type="date" class="form-control" id="startDate">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label">End Date:</label>
+                                <input type="date" class="form-control" id="endDate">
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button class="btn btn-primary" onclick="analyzeRepositories()">
+                                <i class="fas fa-search me-2"></i>
+                                Analyze Repositories
+                            </button>
+                            <button class="btn btn-secondary ms-2" onclick="clearResults()">
+                                <i class="fas fa-trash me-2"></i>
+                                Clear Results
+                            </button>
+                        </div>
+
+                        <div class="loading mt-3" id="loading">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border text-primary me-2" role="status"></div>
+                                <span>Analyzing repositories...</span>
+                            </div>
+                        </div>
+
+                        <div class="error-message mt-3" id="errorMessage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="row mt-4">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            Search History
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="historyContainer">
+                            <p class="text-muted">No previous searches</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="row mt-4" id="resultsSection" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="col-12">
+                <div class="row" id="summaryCards"></div>
+            </div>
+
+            <!-- Repository Details -->
+            <div class="col-12 mt-4">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Repository Analysis Results
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="repoResults"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Generation Trend Graph -->
+            <div class="col-12 mt-4">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            AI Generation Trend Over Time
+                        </h5>
+                        <small class="text-muted">Shows how AI-generated code percentage changes over the selected time period</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="trendChartType" class="form-label">Chart Type:</label>
+                                <select class="form-select" id="trendChartType" onchange="updateTrendChart()">
+                                    <option value="percentage">AI Percentage</option>
+                                    <option value="lines">AI Lines Added</option>
+                                    <option value="commits">AI Commits</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="trendAggregation" class="form-label">Time Aggregation:</label>
+                                <select class="form-select" id="trendAggregation" onchange="updateTrendChart()">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container" style="position: relative; height:400px;">
+                            <canvas id="aiTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combined Developer Stats -->
+            <div class="col-12 mt-4">
+                <div class="card shadow developer-stats">
+                    <div class="card-header">
+                        <h5 class="mb-0 text-white">
+                            <i class="fas fa-users me-2"></i>
+                            Combined Developer Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="combinedStats"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
