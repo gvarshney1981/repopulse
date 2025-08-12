@@ -721,7 +721,8 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    host = config.get('server.host', '0.0.0.0')
-    port = int(os.environ.get('PORT', config.get('server.port', 5001)))
-    debug = config.get('server.debug', False)
+    host = '0.0.0.0'
+    port = int(os.environ.get('PORT', 5001))
+    debug = False
+    print(f"Starting RepoPulse server on {host}:{port}")
     app.run(host=host, port=port, debug=debug) 
